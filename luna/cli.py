@@ -17,6 +17,22 @@ def cmd_install(names: list[str]) -> None:
         except subprocess.CalledProcessError as e:
             print(f"✗ {name} failed: {e}")
 
+def cmd_remove(name: str) -> None:
+    source_path = os.path.expanduser(f"~/.local/lunasource/{name}")
+    bin_path = os.path.expanduser(f"~/.local/luna/{name}")
+    removed_something = False
+    if os.path.isdir(source_path):
+        subprocess.run(["rm", "-rf", source_path], check=True)
+        removed_something = True
+
+    if os.path.isfile(bin_path) or os.path.islink(bin_path):
+        os.remove(bin_path)
+        removed_something = True
+
+    if removed_something:
+        print(f"removed {name}")
+    else:
+        print(f"'{name}' not found")
 
 def cmd_add(name: str, url: str, compile_cmd: str, config_cmd: str = "", install_cmd: str = "") -> None:
     os.makedirs(LUNAORIGIN, exist_ok=True)
