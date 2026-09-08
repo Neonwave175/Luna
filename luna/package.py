@@ -71,10 +71,10 @@ class package:
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print(f"compiled {self.name}")
 
-        self.jsonupdate()
 
     def ins(self) -> None:
         dest = os.path.expanduser(f"~/.local/lunasource/{self.name}")
         subprocess.run(self.install, cwd=dest, shell=True, check=True,
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.jsonupdate()
         print(f"installed {self.name}")
