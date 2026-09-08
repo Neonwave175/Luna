@@ -3,11 +3,13 @@ set -e
 
 echo "Setting up Luna..."
 
+# Create required folders
 mkdir -pv "$HOME/.local/luna"
 mkdir -pv "$HOME/.local/lunasource"
 mkdir -pv "$HOME/.local/lunaorigin"
 
-pip install --break-system-packages git+https://github.com/Neonwave175/luna.git
+# Install luna from its git repo
+pip install --break-system-packages git+https://github.com/Neonwave175/Luna.git
 
 echo ""
 echo "Adding ~/.local/luna to PATH in ~/.zshrc..."
