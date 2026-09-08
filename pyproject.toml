@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "luna"
+version = "0.1.0"
+description = "Personal rolling package manager"
+requires-python = ">=3.10"
+
+[project.scripts]
+luna = "luna.cli:main"
