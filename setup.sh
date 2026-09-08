@@ -21,3 +21,7 @@ if ! grep -qF "$LINE" "$HOME/.zshrc" 2>/dev/null; then
 else
     echo "Already present in ~/.zshrc, skipping."
 fi
+
+echo "Installing updating alias"
+echo 'alias luna-update="pip install --break-system-packages --force-reinstall git+https://github.com/Neonwave175/Luna.git"' >> ~/.zshrc
+source ~/.zshrc
