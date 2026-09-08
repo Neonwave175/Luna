@@ -115,6 +115,7 @@ def print_usage() -> None:
     print("  luna add <name> <url> <compile_cmd> [config_cmd] [install_cmd]")
     print("  luna list")
     print("  luna update")
+    print("  luna remove <package>")
 
 
 def main() -> None:
@@ -146,6 +147,12 @@ def main() -> None:
 
     elif command == "update":
         cmd_update()
+
+    elif command == "remove":
+        if len(sys.argv) < 3:
+            print_usage()
+            sys.exit(1)
+        cmd_remove(sys.argv[2])
 
     else:
         print_usage()
