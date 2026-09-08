@@ -13,8 +13,11 @@ class package:
 
     def jsonparse(self) -> None:
         dir_path = os.path.expanduser("~/.local/lunaorigin")
-        with open(f"{dir_path}/{self.name}.json", "r") as j:
-            dat = json.load(j)
+        try:
+            with open(f"{dir_path}/{self.name}.json", "r") as j:
+                dat = json.load(j)
+        except FileNotFoundError:
+            print("Package Not Found")
         self.compile = dat["Compile"]
         self.cfg = dat["Config"]
         self.curcom = dat["Commit"]
