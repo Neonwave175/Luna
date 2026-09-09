@@ -12,7 +12,7 @@ console = Console()
 
 def cmd_install(names: list[str]) -> None:
     for name in names:
-        pkg = package(name)
+        pkg = package(name, console=console)
         try:
             with console.status(f"[cyan]building {name}...", spinner="dots"):
                 pkg.cmpl()
@@ -83,7 +83,7 @@ def cmd_update() -> None:
     failed = []
 
     for name in names:
-        pkg = package(name)
+        pkg = package(name, console=console)
         pkg.jsonparse()
 
         if pkg.curcom == "":

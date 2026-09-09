@@ -3,20 +3,24 @@ import os
 import shutil
 import subprocess
 
+from rich.console import Console
+
+
 class package:
-    def __init__(self, nme) -> None:
+    def __init__(self, nme, console: Console | None = None) -> None:
         self.name = nme
         self.compile = ""
         self.cfg = ""
         self.install = ""
         self.origin = ""
         self.curcom = ""
+        self.console = console or Console()
 
     def jsonparse(self) -> bool:
         dir_path = os.path.expanduser("~/.local/lunaorigin")
         recipe_path = os.path.join(dir_path, f"{self.name}.json")
         if not os.path.isfile(recipe_path):
-            print(f"Package '{self.name}' not found")
+            self.console.print(f"[yellow]Package '{self.name}' not found[/yellow]")
             return False
         with open(recipe_path, "r") as j:
             dat = json.load(j)
@@ -55,7 +59,7 @@ class package:
             return
         latest = self.get_commit()
         if not latest:
-            print(f"Could not fetch remote commit for {self.name}")
+            self.console.print(f"[red]Could not fetch remote commit for {self.name}[/red]")
             return
         dest = os.path.expanduser(f"~/.local/lunasource/{self.name}")
 
@@ -69,13 +73,13 @@ class package:
             shutil.rmtree(dest)
 
         subprocess.run(["git", "clone", "--depth", "1", self.origin, dest], check=True)
-        print(f"downloaded {self.name}")
+        self.console.print(f"[cyan]downloaded[/cyan] {self.name}")
 
         if self.cfg:
             subprocess.run(self.cfg, cwd=dest, shell=True, check=True)
         if self.compile:
             subprocess.run(self.compile, cwd=dest, shell=True, check=True)
-            print(f"compiled {self.name}")
+            self.console.print(f"[cyan]compiled[/cyan] {self.name}")
 
     def ins(self) -> None:
         dest = os.path.expanduser(f"~/.local/lunasource/{self.name}")
@@ -84,4 +88,4 @@ class package:
         if self.install:
             subprocess.run(self.install, cwd=dest, shell=True, check=True)
         self.jsonupdate()
-        print(f"installed {self.name}")
+        self.console.print(f"[green]installed[/green] {self.name}")
