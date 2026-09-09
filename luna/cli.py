@@ -1,21 +1,27 @@
+import argparse
 import json
 import os
 import subprocess
-import sys
 
+from rich.console import Console
 from .package import package
 
 LUNAORIGIN = os.path.expanduser("~/.local/lunaorigin")
+console = Console()
 
 
 def cmd_install(names: list[str]) -> None:
     for name in names:
         pkg = package(name)
         try:
-            pkg.cmpl()
-            pkg.ins()
+            with console.status(f"[cyan]building {name}...", spinner="dots"):
+                pkg.cmpl()
+            with console.status(f"[cyan]installing {name}...", spinner="dots"):
+                pkg.ins()
+            console.print(f"[green]✓[/green] {name} installed")
         except subprocess.CalledProcessError as e:
-            print(f"✗ {name} failed: {e}")
+            console.print(f"[red]✗[/red] {name} failed: {e}")
+
 
 def cmd_remove(name: str) -> None:
     source_path = os.path.expanduser(f"~/.local/lunasource/{name}")
@@ -30,9 +36,10 @@ def cmd_remove(name: str) -> None:
         removed_something = True
 
     if removed_something:
-        print(f"removed {name}")
+        console.print(f"[green]removed[/green] {name}")
     else:
-        print(f"'{name}' not found")
+        console.print(f"[yellow]'{name}' not found[/yellow]")
+
 
 def cmd_add(name: str, url: str, compile_cmd: str, config_cmd: str = "", install_cmd: str = "") -> None:
     os.makedirs(LUNAORIGIN, exist_ok=True)
@@ -45,35 +52,34 @@ def cmd_add(name: str, url: str, compile_cmd: str, config_cmd: str = "", install
     }
     with open(f"{LUNAORIGIN}/{name}.json", "w") as j:
         json.dump(dat, j, indent=4)
-    print(f"added {name}")
+    console.print(f"[green]added[/green] {name}")
 
 
 def cmd_list() -> None:
     if not os.path.isdir(LUNAORIGIN):
-        print("no packages registered")
+        console.print("no packages registered")
         return
     names = sorted(f[:-5] for f in os.listdir(LUNAORIGIN) if f.endswith(".json"))
     if not names:
-        print("no packages registered")
+        console.print("no packages registered")
         return
     for name in names:
         with open(f"{LUNAORIGIN}/{name}.json") as j:
             dat = json.load(j)
-        status = "installed" if dat.get("Commit", "") else "not built"
-        print(f"  {name}  [{status}]")
+        status = "[green]installed[/green]" if dat.get("Commit", "") else "[yellow]not built[/yellow]"
+        console.print(f"  {name}  [{status}]")
 
 
 def cmd_update() -> None:
     if not os.path.isdir(LUNAORIGIN):
-        print("no packages registered")
+        console.print("no packages registered")
         return
     names = sorted(f[:-5] for f in os.listdir(LUNAORIGIN) if f.endswith(".json"))
     if not names:
-        print("no packages registered")
+        console.print("no packages registered")
         return
 
     updated = []
-    skipped = []
     failed = []
 
     for name in names:
@@ -81,82 +87,76 @@ def cmd_update() -> None:
         pkg.jsonparse()
 
         if pkg.curcom == "":
-            skipped.append(name)
             continue
 
         try:
-            latest = pkg.get_commit()
-            dest = os.path.expanduser(f"~/.local/lunasource/{name}")
+            with console.status(f"[cyan]checking {name}...", spinner="dots"):
+                latest = pkg.get_commit()
+                dest = os.path.expanduser(f"~/.local/lunasource/{name}")
+                needs_update = not (latest == pkg.curcom and os.path.isdir(dest))
 
-            if latest == pkg.curcom and os.path.isdir(dest):
+            if not needs_update:
                 continue
 
-            pkg.cmpl()
-            pkg.ins()
+            with console.status(f"[cyan]updating {name}...", spinner="dots"):
+                pkg.cmpl()
+                pkg.ins()
             updated.append(name)
 
         except subprocess.CalledProcessError as e:
             failed.append(name)
-            print(f"✗ {name} failed: {e}")
+            console.print(f"[red]✗[/red] {name} failed: {e}")
 
     if updated:
-        print(f"updated: {', '.join(updated)}")
+        console.print(f"[green]updated:[/green] {', '.join(updated)}")
     else:
-        print("everything up to date")
+        console.print("everything up to date")
     if failed:
-        print(f"failed: {', '.join(failed)}")
+        console.print(f"[red]failed:[/red] {', '.join(failed)}")
 
 
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="luna", description="Luna package manager")
+    subparsers = parser.add_subparsers(dest="command")
 
+    p_install = subparsers.add_parser("install", help="build and install one or more packages")
+    p_install.add_argument("packages", nargs="+", help="package name(s) to install")
 
-def print_usage() -> None:
-    print("usage:")
-    print("  luna install <package> [package2] ...")
-    print("  luna add <name> <url> <compile_cmd> [config_cmd] [install_cmd]")
-    print("  luna list")
-    print("  luna update")
-    print("  luna remove <package>")
+    p_add = subparsers.add_parser("add", help="register a new package source")
+    p_add.add_argument("name", help="package name")
+    p_add.add_argument("url", help="source repository URL")
+    p_add.add_argument("compile_cmd", help="command used to compile the package")
+    p_add.add_argument("config_cmd", nargs="?", default="", help="optional configure command")
+    p_add.add_argument("install_cmd", nargs="?", default="", help="optional install command")
+
+    subparsers.add_parser("list", help="list registered packages")
+
+    subparsers.add_parser("update", help="update all installed packages")
+
+    p_remove = subparsers.add_parser("remove", help="remove a package")
+    p_remove.add_argument("package", help="package name to remove")
+
+    return parser
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print_usage()
-        sys.exit(1)
+    parser = build_parser()
+    args = parser.parse_args()
 
-    command = sys.argv[1]
+    if args.command is None:
+        parser.print_help()
+        raise SystemExit(1)
 
-    if command == "install":
-        if len(sys.argv) < 3:
-            print_usage()
-            sys.exit(1)
-        cmd_install(sys.argv[2:])
-
-    elif command == "add":
-        if len(sys.argv) < 5:
-            print_usage()
-            sys.exit(1)
-        name = sys.argv[2]
-        url = sys.argv[3]
-        compile_cmd = sys.argv[4]
-        config_cmd = sys.argv[5] if len(sys.argv) > 5 else ""
-        install_cmd = sys.argv[6] if len(sys.argv) > 6 else ""
-        cmd_add(name, url, compile_cmd, config_cmd, install_cmd)
-
-    elif command == "list":
+    if args.command == "install":
+        cmd_install(args.packages)
+    elif args.command == "add":
+        cmd_add(args.name, args.url, args.compile_cmd, args.config_cmd, args.install_cmd)
+    elif args.command == "list":
         cmd_list()
-
-    elif command == "update":
+    elif args.command == "update":
         cmd_update()
-
-    elif command == "remove":
-        if len(sys.argv) < 3:
-            print_usage()
-            sys.exit(1)
-        cmd_remove(sys.argv[2])
-
-    else:
-        print_usage()
-        sys.exit(1)
+    elif args.command == "remove":
+        cmd_remove(args.package)
 
 
 if __name__ == "__main__":
