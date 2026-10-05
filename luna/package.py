@@ -73,7 +73,7 @@ class package:
         if os.path.exists(dest):
             shutil.rmtree(dest)
         try:
-            subprocess.run(["git", "clone", "--depth", "1", self.origin, dest], check=True)
+            subprocess.run(["git", "clone", "--depth", "1", self.origin, dest], check=True, capture_output=True, text=True,)
         except subprocess.CalledProcessError as e:
             print(e.stdout, e.stderr, sep="\n", file=sys.stderr)
             raise
