@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 
 from rich.console import Console
 
@@ -71,14 +72,25 @@ class package:
 
         if os.path.exists(dest):
             shutil.rmtree(dest)
-
-        subprocess.run(["git", "clone", "--depth", "1", self.origin, dest], check=True)
+        try:
+            subprocess.run(["git", "clone", "--depth", "1", self.origin, dest], check=True)
+        except subprocess.CalledProcessError as e:
+            print(e.stdout, e.stderr, sep="\n", file=sys.stderr)
+            raise
         self.console.print(f"[cyan]downloaded[/cyan] {self.name}")
 
         if self.cfg:
-            subprocess.run(self.cfg, cwd=dest, shell=True, check=True)
+            try:
+                subprocess.run(self.cfg, cwd=dest, shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(e.stdout, e.stderr, sep="\n", file=sys.stderr)
+                raise
         if self.compile:
-            subprocess.run(self.compile, cwd=dest, shell=True, check=True)
+            try:
+                subprocess.run(self.compile,cwd=dest,shell=True,check=True,capture_output=True,text=True,)
+            except subprocess.CalledProcessError as e:
+                print(e.stdout, e.stderr, sep="\n", file=sys.stderr)
+                raise
             self.console.print(f"[cyan]compiled[/cyan] {self.name}")
 
     def ins(self) -> None:
