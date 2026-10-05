@@ -81,7 +81,7 @@ class package:
 
         if self.cfg:
             try:
-                subprocess.run(self.cfg, cwd=dest, shell=True, check=True)
+                subprocess.run(self.cfg, cwd=dest, shell=True, check=True, capture_output=True, text=True)
             except subprocess.CalledProcessError as e:
                 print(e.stdout, e.stderr, sep="\n", file=sys.stderr)
                 raise
