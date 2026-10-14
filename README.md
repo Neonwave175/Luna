@@ -1,6 +1,6 @@
 # Luna
 
-Personal rolling package manager for building tools from source. Recipes live in `~/.local/lunaorigin`, sources build in `~/.local/lunasource`, binaries land in `~/.local/luna`.
+Build your own tools from source and keep them updated. Recipes live in `~/.local/lunaorigin`, sources build in `~/.local/lunasource`, binaries land in `~/.local/luna`.
 
 ## Install
 
