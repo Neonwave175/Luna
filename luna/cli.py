@@ -36,6 +36,16 @@ def cmd_remove(name: str) -> None:
         removed_something = True
 
     if removed_something:
+        recipe_path = f"{LUNAORIGIN}/{name}.json"
+        if os.path.isfile(recipe_path):
+            try:
+                with open(recipe_path, "r") as j:
+                    dat = json.load(j)
+                dat["Commit"] = ""
+                with open(recipe_path, "w") as j:
+                    json.dump(dat, j, indent=4)
+            except (json.JSONDecodeError, OSError) as e:
+                console.print(f"[yellow]warning: could not clear commit for '{name}': {e}[/yellow]")
         console.print(f"[green]removed[/green] {name}")
     else:
         console.print(f"[yellow]'{name}' not found[/yellow]")
