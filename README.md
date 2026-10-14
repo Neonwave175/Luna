@@ -60,11 +60,3 @@ capi.install("fzf", log_cb=print)
 ```
 
 Set `LUNA_LIB` to point at a prebuilt library, or build it manually from the (git-ignored) `native/` sources.
-
-## Swift GUIs
-
-The `native/` SwiftPM package (not tracked in git) holds the shared C core (`CLuna`) plus two frontends on top of it: `LunaGUI`, a SwiftUI Liquid Glass app, and `LunaGUIApp`, an AppKit app that builds with command-line tools alone. The SwiftUI target needs full Xcode 26+:
-
-```sh
-cd native && swift run LunaGUI
-```
