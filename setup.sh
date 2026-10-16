@@ -10,6 +10,7 @@ mkdir -pv "$HOME/.local/lunaorigin"
 
 # Install luna from its git repo
 pip install --break-system-packages git+https://github.com/Neonwave175/Luna.git
+pip install --break-system-packages rich
 
 echo ""
 echo "Adding ~/.local/luna to PATH in ~/.zshrc..."
