@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 
 from rich.console import Console
 from .package import package
@@ -125,6 +126,48 @@ def cmd_update() -> None:
         console.print(f"[red]failed:[/red] {', '.join(failed)}")
 
 
+def _looks_like_lunafile(path: str) -> bool:
+    if path.endswith(".json") or path.endswith(".luna"):
+        return True
+    if os.path.isfile(path):
+        try:
+            with open(path) as f:
+                return isinstance(json.load(f), list)
+        except Exception:
+            return False
+    return False
+
+
+def cmd_sync(path: str) -> None:
+    if not os.path.isfile(path):
+        console.print(f"[red]'{path}' not found[/red]")
+        raise SystemExit(1)
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except Exception as e:
+        console.print(f"[red]could not parse '{path}': {e}[/red]")
+        raise SystemExit(1)
+    if not isinstance(data, list):
+        console.print(f"[red]'{path}' must contain a JSON array of packages[/red]")
+        raise SystemExit(1)
+    names: list = []
+    for spec in data:
+        if not isinstance(spec, dict):
+            continue
+        name = spec.get("Name", "")
+        url = spec.get("URL", "")
+        if not name or not url:
+            console.print("[yellow]skipping entry without Name/URL[/yellow]")
+            continue
+        cmd_add(name, url, spec.get("Compile", ""), spec.get("Config", ""), spec.get("Install", ""))
+        names.append(name)
+    if not names:
+        console.print(f"[yellow]no packages found in '{path}'[/yellow]")
+        return
+    cmd_install(names)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="luna", description="Luna package manager")
     subparsers = parser.add_subparsers(dest="command")
@@ -146,10 +189,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_remove = subparsers.add_parser("remove", help="remove a package")
     p_remove.add_argument("package", help="package name to remove")
 
+    p_sync = subparsers.add_parser("sync", help="register and install every package in a JSON lunafile")
+    p_sync.add_argument("file", help="path to a JSON lunafile")
+
     return parser
 
 
 def main() -> None:
+    if len(sys.argv) == 2 and _looks_like_lunafile(sys.argv[1]):
+        cmd_sync(sys.argv[1])
+        return
     parser = build_parser()
     args = parser.parse_args()
 
@@ -167,6 +216,8 @@ def main() -> None:
         cmd_update()
     elif args.command == "remove":
         cmd_remove(args.package)
+    elif args.command == "sync":
+        cmd_sync(args.file)
 
 
 if __name__ == "__main__":
