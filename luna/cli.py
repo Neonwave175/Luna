@@ -127,7 +127,7 @@ def cmd_update() -> None:
 
 
 def _looks_like_lunafile(path: str) -> bool:
-    if path.endswith(".json") or path.endswith(".luna"):
+    if path.endswith(".luna"):
         return True
     if os.path.isfile(path):
         try:

@@ -1,62 +1,36 @@
-# Luna
+# Luna Package Manager
+Fast, quirky and experimental like Luna Lovegood
 
-Build your own tools from source and keep them updated. Recipes live in `~/.local/lunaorigin`, sources build in `~/.local/lunasource`, binaries land in `~/.local/luna`.
-
-## Install
-
-```sh
-./setup.sh
-```
-
-This creates the required folders, installs Luna with pip, and adds `~/.local/luna` to your `PATH`. To update Luna itself later:
-
-```sh
-luna-update
-```
-
-Or install directly with pip:
-
-```sh
-pip install git+https://github.com/Neonwave175/Luna.git
-```
-
-Requires Python 3.10+, `git`, and whatever build tools your packages need (`make`, `cargo`, `go`, `cmake`, ...).
+## Instalation
+**Requirements:** Zsh as the shell, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
+Kinda simple: Just run 
+`wget https://raw.githubusercontent.com/Neonwave175/Luna/refs/heads/main/setup.sh lunasetup.sh && bash lunasetup.sh`
 
 ## CLI
-
-```sh
-luna add <name> <url> <compile_cmd> [config_cmd] [install_cmd]
-luna install <name>...
-luna list
-luna update
-luna remove <name>
-```
-
-Example:
-
-```sh
-luna add fzf https://github.com/junegunn/fzf.git "go build -o fzf ." "" "mkdir -p ~/.local/luna && cp fzf ~/.local/luna/"
-luna install fzf
-```
-
-`add` registers a recipe with an empty commit. `install` clones at the latest remote commit, runs the config/compile/install commands, and records the commit. `update` reinstalls every package whose remote moved (removed packages are skipped). `remove` deletes the source and binary and clears the recorded commit.
+ * `luna install <package name>`: installs the package or lunfile
+ * `luna remove <package name>`: removes the package name
+ * `luna add <package name> <git url> <compile command> <configure command> <install command>`: adds the originfile for a new package
+ * `luna list`: lists all packages
+ * `luna update`: updates all packages
+ * `luna-update`: alias to update luna itself
 
 ## GUI
+This is self-explanatory hopefully
+If not, don't use it
 
-```sh
-luna-gui
+**NOTE** SwiftUI based GUI comming in the future, that is the reason for the C API
+
+## API
 ```
+from luna import lunaapi as luna
+packagelist = luna.list_packages() #returns a list
+luna.install("neovim", log_cb=print) #Installs
+luna.add("tokei", "https://github.com/XAMPPRocky/tokei.git", "cargo build --release", "mkdir -p ~/.local/luna && cp target/release/tokei ~/.local/luna/") #adds originfile
+luna.remove("cmatrix") #removes
+btop = luna.get("btop") #returns info
+commitofbtop = luna.get_remote_commit(btop["url"]) #takes in URL
+checkupdate = luna.needs_update("argon2") #Yes the hashing algorithm, returns false of not on the latest version
+luna.update_all() #updates all
+luna.version() #returns the current verion
 
-Tkinter frontend over the same operations: package list with installed status, detail view, Install / Remove / Add / Update All, and a live activity log. Long builds run in background threads.
-
-## Python + C API
-
-`luna/capi.py` exposes the same operations to Python (`add`, `remove`, `get`, `list_packages`, `install`, `update_all`, `needs_update`, `get_remote_commit`) through a shared native core, auto-building it on first import:
-
-```python
-from luna import capi
-capi.list_packages()
-capi.install("fzf", log_cb=print)
 ```
-
-Set `LUNA_LIB` to point at a prebuilt library, or build it manually from the (git-ignored) `native/` sources.
