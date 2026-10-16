@@ -15,6 +15,7 @@ Kinda simple: Just run
  * `luna-update`: alias to update luna itself
 
 ## GUI
+launch from the terminal by using `luna-gui`
 This is self-explanatory hopefully
 If not, don't use it
 
