@@ -1,7 +1,7 @@
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
-from . import capi
+from . import lunaapi
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -11,7 +11,7 @@ class App(tk.Tk):
         top = ttk.Frame(self, padding=8)
         top.pack(fill="x")
         ttk.Label(top, text="Luna", font=("SF Pro", 18, "bold")).pack(side="left")
-        self.ver = ttk.Label(top, text="v" + capi.version())
+        self.ver = ttk.Label(top, text="v" + lunaapi.version())
         self.ver.pack(side="left", padx=8)
         ttk.Button(top, text="Refresh", command=self.refresh).pack(side="right", padx=2)
         ttk.Button(top, text="Update All", command=self.update_all).pack(side="right", padx=2)
@@ -37,7 +37,7 @@ class App(tk.Tk):
         self.log.see("end")
     def refresh(self):
         try:
-            self.store = capi.list_packages()
+            self.store = lunaapi.list_packages()
         except Exception as e:
             messagebox.showerror("Error", str(e))
             return
@@ -67,7 +67,7 @@ class App(tk.Tk):
             return
         compile_cmd = simpledialog.askstring("Add", "Compile command:", initialvalue="make -j") or ""
         try:
-            capi.add(name, url, compile_cmd)
+            lunaapi.add(name, url, compile_cmd)
             self.logline(f"added {name}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
@@ -80,7 +80,7 @@ class App(tk.Tk):
         threading.Thread(target=self._install, args=(p["name"],), daemon=True).start()
     def _install(self, name):
         try:
-            capi.install(name, log_cb=lambda m: self.after(0, self.logline, m))
+            lunaapi.install(name, log_cb=lambda m: self.after(0, self.logline, m))
             self.after(0, self.logline, f"installed {name}")
         except Exception as e:
             self.after(0, self.logline, f"install failed: {e}")
@@ -90,7 +90,7 @@ class App(tk.Tk):
         if not p:
             return
         try:
-            capi.remove(p["name"])
+            lunaapi.remove(p["name"])
             self.logline(f"removed {p['name']}")
         except Exception as e:
             messagebox.showerror("Error", str(e))
@@ -100,7 +100,7 @@ class App(tk.Tk):
         threading.Thread(target=self._update, daemon=True).start()
     def _update(self):
         try:
-            n = capi.update_all(log_cb=lambda m: self.after(0, self.logline, m))
+            n = lunaapi.update_all(log_cb=lambda m: self.after(0, self.logline, m))
             self.after(0, self.logline, f"updated {n}")
         except Exception as e:
             self.after(0, self.logline, f"update failed: {e}")
