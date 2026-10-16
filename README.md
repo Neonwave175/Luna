@@ -6,7 +6,7 @@ Fast, quirky and experimental like Luna Lovegood
 </div>
 
 ## Instalation
-*Requirements:*  Zsh as the shell, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
+*Requirements:*  Zsh as the shell, python3 (3.10+), pip, wget, git, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
 
 *How to install:* 
 Kinda simple: Just run
