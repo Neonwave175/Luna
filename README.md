@@ -22,7 +22,7 @@ If not, don't use it
 
 ## API
 Python
-```
+``` python
 from luna import lunaapi as luna
 packagelist = luna.list_packages() #returns a list
 luna.install("neovim", log_cb=print) #Installs
