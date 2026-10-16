@@ -6,9 +6,9 @@ Fast, quirky and experimental like Luna Lovegood
 </div>
 
 ## Instalation
-**Requirements: ** Zsh as the shell, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
+*Requirements: ** Zsh as the shell, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
 
-**How to install: **
+*How to install: **
 Kinda simple: Just run 
 `wget https://raw.githubusercontent.com/Neonwave175/Luna/refs/heads/main/setup.sh lunasetup.sh && bash lunasetup.sh`
 
