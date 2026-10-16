@@ -21,6 +21,7 @@ If not, don't use it
 **NOTE** SwiftUI based GUI comming in the future, that is the reason for the C API
 
 ## API
+Python
 ```
 from luna import lunaapi as luna
 packagelist = luna.list_packages() #returns a list
@@ -32,5 +33,4 @@ commitofbtop = luna.get_remote_commit(btop["url"]) #takes in URL
 checkupdate = luna.needs_update("argon2") #Yes the hashing algorithm, returns false of not on the latest version
 luna.update_all() #updates all
 luna.version() #returns the current verion
-
 ```
