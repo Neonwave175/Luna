@@ -1,7 +1,7 @@
 # Luna Package Manager
 Fast, quirky and experimental like Luna Lovegood
 
-<img src="LunaLogo.png" alt="Logo" width="30%">
+<img src="images/LunaLogo.png" alt="Logo" width="30%">
 
 ## Instalation
 **Requirements:** Zsh as the shell, all the stuff needed to compule the software you install (cmake, swift, cargo, go and so on)
