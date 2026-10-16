@@ -2,6 +2,7 @@ import ctypes
 import os
 import subprocess
 import shutil
+from . import __version__
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 _C_SRC = os.path.join(_REPO, "native", "Sources", "CLuna", "luna.c")
@@ -99,7 +100,7 @@ def _s(b):
         return b.decode(errors="replace")
     return str(b)
 def version():
-    return _s(_ensure_lib().luna_version())
+    return __version__
 def last_error():
     return _s(_ensure_lib().luna_last_error())
 def set_root(path=""):
