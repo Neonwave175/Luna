@@ -10,7 +10,7 @@ Fast, quirky and experimental like Luna Lovegood
 
 *How to install:* 
 Kinda simple: Just run
-`wget https://raw.githubusercontent.com/Neonwave175/Luna/refs/heads/main/setup.sh lunasetup.sh && bash lunasetup.sh`
+`curl https://raw.githubusercontent.com/Neonwave175/Luna/refs/heads/main/setup.sh | zsh`
 
 ## CLI
  * `luna install <package name>`: installs the package or lunfile
